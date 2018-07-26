@@ -1,6 +1,7 @@
 " Basic settings ------ {{{
 set nocompatible
 set number relativenumber numberwidth=4
+set sw=4 expandtab
 set wrap
 set shiftround
 filetype on
@@ -9,6 +10,38 @@ set foldlevelstart=0
 
 let mapleader = "-"
 let maplocalleader = "\\"
+" }}}
+
+" Plugins ----------- {{{
+call plug#begin('~/.vim/plugged')
+
+Plug 'scrooloose/nerdtree'
+let g:NERDTreeWinSize=52
+nnoremap <c-n> :NERDTreeToggle<CR>
+
+Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter'
+Plug 'Xuyuanp/nerdtree-git-plugin'
+let g:NERDTreeIndicatorMapCustom = {
+    \ "Modified"  : "✹ ",
+    \ "Staged"    : "✚ ",
+    \ "Untracked" : "✭ ",
+    \ "Renamed"   : "➜ ",
+    \ "Unmerged"  : "═ ",
+    \ "Deleted"   : "✖ ",
+    \ "Dirty"     : "✗ ",
+    \ "Clean"     : "✔︎ ",
+    \ 'Ignored'   : '☒ ',
+    \ "Unknown"   : "? "
+    \ }
+
+Plug 'ryanoasis/vim-devicons'
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+
+Plug 'Valloric/YouCompleteMe'
+
+Plug 'airblade/vim-rooter'
+call plug#end()
 " }}}
 
 " Leader mappings ---------- {{{
@@ -51,7 +84,7 @@ set statusline+=%r       " ReadOnly flag
 set statusline+=%h       " ReadOnly flag
 set statusline+=%w       " ReadOnly flag
 set statusline+=\ %n)    " ReadOnly flag
-set statusline+=%.20f    " Filename (max-len 20)
+set statusline+=%t       " Filename (max-len 20)
 set statusline+=%=       " Start from right
 set statusline+=col:%c\  " Column number
 set statusline+=%l       " Line No.
@@ -90,8 +123,23 @@ augroup END
 " Javascript file settings ----------- {{{
 augroup ft_js
   autocmd!
-  autocmd FileType javascript :iabbrev <buffer> fn function (<left>
+  "autocmd FileType javascript :iabbrev <buffer> fn function (<left>
 augroup END
+" }}}
+
+" modify selected text using combining diacritics {{{
+command! -range -nargs=0 Overline        call s:CombineSelection(<line1>, <line2>, '0305')
+command! -range -nargs=0 Underline       call s:CombineSelection(<line1>, <line2>, '0332')
+command! -range -nargs=0 DoubleUnderline call s:CombineSelection(<line1>, <line2>, '0333')
+command! -range -nargs=0 Strikethrough   call s:CombineSelection(<line1>, <line2>, '0336')
+
+function! s:CombineSelection(line1, line2, cp)
+  execute 'let char = "\u'.a:cp.'"'
+  execute a:line1.','.a:line2.'s/\%V[^[:cntrl:]]/&'.char.'/ge'
+endfunction
+
+vnoremap - :Strikethrough<CR>
+vnoremap _ :Underline<CR>
 " }}}
 
 " Java file settings ----------- {{{
